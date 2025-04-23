@@ -9,12 +9,14 @@
   <link href="styles.css" rel="stylesheet">
   <style>
     #navMenu {
-      display: none;
+      max-height: 0;
+      overflow: hidden;
       background-color: #f8f9fa;
       border-top: 1px solid #ddd;
+      transition: max-height 0.4s ease;
     }
     #navMenu.show {
-      display: block;
+      max-height: 60px;
     }
     .menu-toggle {
       cursor: pointer;
@@ -26,6 +28,19 @@
       height: 3px;
       background-color: #333;
       margin: 5px 0;
+    }
+    .nav-links-inline {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 10px 0;
+    }
+    .nav-links-inline a {
+      color: #333;
+      text-decoration: none;
+    }
+    .nav-links-inline a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -47,9 +62,11 @@
   </nav>
 
   <!-- Dropdown Menu Bar -->
-  <div id="navMenu" class="text-center py-2">
-    <a class="d-block py-1 text-decoration-none text-dark" href="#services">Services</a>
-    <a class="d-block py-1 text-decoration-none text-dark" href="#contact">Contact</a>
+  <div id="navMenu">
+    <div class="nav-links-inline">
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </div>
   </div>
 
   <!-- Hero Section -->

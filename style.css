@@ -3,73 +3,77 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     background-color: #f9f9f9;
-  }
-  
-  /* Navbar */
-  .navbar-brand {
+}
+
+/* Navbar */
+.navbar-brand {
     font-size: 1.5rem;
     color: #1f2937;
-  }
-  
-  .navbar-light .navbar-nav .nav-link {
+}
+
+.navbar-light .navbar-nav .nav-link {
     color: #1f2937;
     transition: color 0.3s ease;
-  }
-  
-  .navbar-light .navbar-nav .nav-link:hover {
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
     color: #0d6efd;
-  }
-  
-  /* Hero Section */
-  header {
+}
+
+.navbar-brand img {
+    height: 80px;
+}
+
+/* Hero Section */
+header {
     background: linear-gradient(to right, #1e3a8a, #2563eb);
-  }
-  
-  header h1 {
+}
+
+header h1 {
     font-weight: 700;
-  }
-  
-  header .btn {
+}
+
+header .btn {
     font-weight: 500;
     border-radius: 30px;
     padding: 10px 20px;
-  }
-  
-  /* Services Section */
-  #services h2 {
+}
+
+/* Services Section */
+#services h2 {
     font-weight: 600;
     color: #1f2937;
-  }
-  
-  #services h4 {
+}
+
+#services h4 {
     margin-top: 1rem;
     color: #2563eb;
     font-weight: 600;
-  }
-  
-  #services p {
+}
+
+#services p {
     color: #4b5563;
     font-size: 0.95rem;
-  }
-  
-  /* Contact Section */
-  #contact h2 {
+}
+
+/* Contact Section */
+#contact h2 {
     color: #1f2937;
     font-weight: 600;
-  }
-  
-  #contact p {
+}
+
+#contact p {
     color: #6b7280;
     font-size: 0.95rem;
     margin-bottom: 1rem;
-  }
-  
-  #contact .btn {
+}
+
+#contact .btn {
     border-radius: 30px;
     padding: 10px 25px;
-  }
-  
-  /* Footer */
-  footer {
+}
+
+/* Footer */
+footer {
     font-size: 0.875rem;
-  }  
+}

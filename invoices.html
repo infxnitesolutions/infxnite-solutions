@@ -124,7 +124,7 @@
     }
 
     async function downloadPDF() {
-      const {{ jsPDF }} = window.jspdf;
+      const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const invoiceElement = document.getElementById("invoice");
       await doc.html(invoiceElement, {

@@ -159,19 +159,19 @@
       document.getElementById('total').innerText = grandTotal.toFixed(2);
     }
 
-  async function downloadPDF() {
-    const invoiceElement = document.getElementById("invoice");
+    async function downloadPDF() {
 
-    // Wait until canvas is rendered
+    const uiElements = document.querySelectorAll('.form-section, .btn-container');
+    uiElements.forEach(el => el.style.display = 'none');
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    const invoiceElement = document.getElementById("invoice");
     const canvas = await html2canvas(invoiceElement, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
 
-    // Explicitly reference window.jsPDF
-    const pdf = new window.jsPDF("p", "mm", "a4");
-
+    const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-
     const imgWidth = pdfWidth - 20;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -180,6 +180,9 @@
 
     pdf.addImage(imgData, "PNG", marginLeft, marginTop, imgWidth, imgHeight);
     pdf.save("invoice.pdf");
+
+    // Restore hidden UI elements
+    uiElements.forEach(el => el.style.display = '');
   }
   </script>
 </body>

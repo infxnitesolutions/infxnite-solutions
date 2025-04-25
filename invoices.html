@@ -183,5 +183,22 @@
         pdf.save("invoice.pdf");
     }
   </script>
+
+  <!-- Client Info Section -->
+<div class="client-info" style="margin-top: 30px;">
+  <label for="clientName"><strong>Client Name:</strong></label>
+  <input type="text" id="clientName" placeholder="Enter client name" style="margin-left: 10px; padding: 6px; font-size: 14px;">
+  <br><br>
+  <label for="invoiceDate"><strong>Date:</strong></label>
+  <input type="date" id="invoiceDate" style="margin-left: 10px; padding: 6px; font-size: 14px;">
+  <br><br>
+  <label for="invoiceNumber"><strong>Invoice #:</strong></label>
+  <input type="text" id="invoiceNumber" placeholder="e.g. INV-00123" style="margin-left: 10px; padding: 6px; font-size: 14px;">
+</div>
+
+<script>
+  // Auto-fill current date by default
+  document.getElementById('invoiceDate').valueAsDate = new Date();
+</script>
 </body>
 </html>

@@ -30,10 +30,26 @@
       margin-top: 0;
       color: #555;
     }
+    .client-info {
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #fdfdfd;
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+    .client-info div {
+      margin-bottom: 10px;
+    }
+    .client-info input {
+      padding: 6px;
+      font-size: 14px;
+      width: 250px;
+      margin-left: 10px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 30px;
     }
     th, td {
       border: 1px solid #ddd;
@@ -91,19 +107,22 @@
 <body>
   <div class="container" id="invoice">
     <h2>Infxnite Solutions</h2>
+    <h4>Invoice Generator</h4>
 
-    <div class="form-section">
-      <label for="service">Service:</label>
-      <select id="service">
-        <option value="75">Virus Removal - $75</option>
-        <option value="50">System Optimization - $50</option>
-        <option value="40">Hardware Installation - $40</option>
-        <option value="120">Data Recovery - $120</option>
-        <option value="35">Software Installation - $35</option>
-      </select>
-      <label for="qty">Quantity:</label>
-      <input type="number" id="qty" min="1" value="1">
-      <button class="btn" onclick="addService()">Add Service</button>
+    <!-- Client Info Section -->
+    <div class="client-info">
+      <div>
+        <strong>Client Name:</strong>
+        <input type="text" id="clientName" placeholder="Enter client name">
+      </div>
+      <div>
+        <strong>Date:</strong>
+        <input type="date" id="invoiceDate">
+      </div>
+      <div>
+        <strong>Invoice #:</strong>
+        <input type="text" id="invoiceNumber" placeholder="e.g. INV-00123">
+      </div>
     </div>
 
     <table id="invoiceTable">
@@ -119,6 +138,20 @@
       </tbody>
     </table>
 
+    <div class="form-section">
+      <label for="service">Service:</label>
+      <select id="service">
+        <option value="75">Virus Removal - $75</option>
+        <option value="50">System Optimization - $50</option>
+        <option value="40">Hardware Installation - $40</option>
+        <option value="120">Data Recovery - $120</option>
+        <option value="35">Software Installation - $35</option>
+      </select>
+      <label for="qty">Quantity:</label>
+      <input type="number" id="qty" min="1" value="1">
+      <button class="btn" onclick="addService()">Add Service</button>
+    </div>
+
     <div class="total-section">
       <p><strong>Subtotal: $<span id="subtotal">0.00</span></strong></p>
       <p>Tax (9.5%): $<span id="tax">0.00</span></p>
@@ -131,6 +164,8 @@
   </div>
 
   <script>
+    document.getElementById('invoiceDate').valueAsDate = new Date();
+
     let subtotal = 0;
     function addService() {
       const serviceDropdown = document.getElementById('service');
@@ -159,46 +194,25 @@
     }
 
     async function downloadPDF() {
-        const { jsPDF } = window.jspdf;
-        console.log("jsPDF available?", typeof jsPDF); // should log 'function'
+      const { jsPDF } = window.jspdf;
+      const uiElements = document.querySelectorAll('.form-section, .btn-container');
+      uiElements.forEach(el => el.style.display = 'none');
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-        const uiElements = document.querySelectorAll('.form-section, .btn-container');
-        uiElements.forEach(el => el.style.display = 'none');
+      const invoiceElement = document.getElementById("invoice");
+      const canvas = await html2canvas(invoiceElement, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
 
-        await new Promise(resolve => setTimeout(resolve, 300));
+      uiElements.forEach(el => el.style.display = '');
 
-        const invoiceElement = document.getElementById("invoice");
-        const canvas = await html2canvas(invoiceElement, { scale: 2 });
-        const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        // Restore UI before saving
-        uiElements.forEach(el => el.style.display = '');
-
-        const pdf = new jsPDF("p", "mm", "a4");
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const imgWidth = pdfWidth - 20;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-        pdf.save("invoice.pdf");
+      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      pdf.save("invoice.pdf");
     }
   </script>
-
-  <!-- Client Info Section -->
-<div class="client-info" style="margin-top: 30px;">
-  <label for="clientName"><strong>Client Name:</strong></label>
-  <input type="text" id="clientName" placeholder="Enter client name" style="margin-left: 10px; padding: 6px; font-size: 14px;">
-  <br><br>
-  <label for="invoiceDate"><strong>Date:</strong></label>
-  <input type="date" id="invoiceDate" style="margin-left: 10px; padding: 6px; font-size: 14px;">
-  <br><br>
-  <label for="invoiceNumber"><strong>Invoice #:</strong></label>
-  <input type="text" id="invoiceNumber" placeholder="e.g. INV-00123" style="margin-left: 10px; padding: 6px; font-size: 14px;">
-</div>
-
-<script>
-  // Auto-fill current date by default
-  document.getElementById('invoiceDate').valueAsDate = new Date();
-</script>
 </body>
 </html>

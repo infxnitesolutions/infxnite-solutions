@@ -159,24 +159,28 @@
       document.getElementById('total').innerText = grandTotal.toFixed(2);
     }
 
-    async function downloadPDF() {
-      const invoiceElement = document.getElementById("invoice");
-      const canvas = await html2canvas(invoiceElement, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
+  async function downloadPDF() {
+    const invoiceElement = document.getElementById("invoice");
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+    // Wait until canvas is rendered
+    const canvas = await html2canvas(invoiceElement, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
 
-      const imgWidth = pdfWidth - 20;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    // Explicitly reference window.jsPDF
+    const pdf = new window.jsPDF("p", "mm", "a4");
 
-      const marginTop = 10;
-      const marginLeft = 10;
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.addImage(imgData, "PNG", marginLeft, marginTop, imgWidth, imgHeight);
-      pdf.save("invoice.pdf");
-    }
+    const imgWidth = pdfWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    const marginLeft = 10;
+    const marginTop = 10;
+
+    pdf.addImage(imgData, "PNG", marginLeft, marginTop, imgWidth, imgHeight);
+    pdf.save("invoice.pdf");
+  }
   </script>
 </body>
 </html>

@@ -160,29 +160,26 @@
     }
 
     async function downloadPDF() {
-
     const uiElements = document.querySelectorAll('.form-section, .btn-container');
     uiElements.forEach(el => el.style.display = 'none');
 
+    // Give the UI a moment to reflow
     await new Promise(resolve => setTimeout(resolve, 300));
 
     const invoiceElement = document.getElementById("invoice");
     const canvas = await html2canvas(invoiceElement, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
 
+    // Restore UI before saving
+    uiElements.forEach(el => el.style.display = '');
+
     const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const imgWidth = pdfWidth - 20;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    const marginLeft = 10;
-    const marginTop = 10;
-
-    pdf.addImage(imgData, "PNG", marginLeft, marginTop, imgWidth, imgHeight);
+    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
     pdf.save("invoice.pdf");
-
-    // Restore hidden UI elements
-    uiElements.forEach(el => el.style.display = '');
   }
   </script>
 </body>

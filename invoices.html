@@ -173,7 +173,7 @@
         const imgData = canvas.toDataURL("image/png");
 
         // Restore UI before saving
-        iElements.forEach(el => el.style.display = '');
+        uiElements.forEach(el => el.style.display = '');
 
         const pdf = new jsPDF("p", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();

@@ -21,14 +21,9 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h2 {
+    h2, h4 {
       text-align: center;
-      margin-bottom: 5px;
-    }
-    h4 {
-      text-align: center;
-      margin-top: 0;
-      color: #555;
+      margin: 10px 0;
     }
     .client-info {
       padding: 15px;
@@ -50,6 +45,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 30px;
     }
     th, td {
       border: 1px solid #ddd;
@@ -164,7 +160,14 @@
   </div>
 
   <script>
+    // Set date to today
     document.getElementById('invoiceDate').valueAsDate = new Date();
+
+    // Generate next invoice number
+    const lastInvoiceNum = localStorage.getItem('lastInvoiceNumber');
+    let nextInvoiceNum = lastInvoiceNum ? parseInt(lastInvoiceNum.replace('INV-', '')) + 1 : 1001;
+    const newInvoiceId = `INV-${nextInvoiceNum}`;
+    document.getElementById('invoiceNumber').value = newInvoiceId;
 
     let subtotal = 0;
     function addService() {
@@ -212,6 +215,9 @@
 
       pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
       pdf.save("invoice.pdf");
+
+      // Save next invoice number
+      localStorage.setItem('lastInvoiceNumber', newInvoiceId);
     }
   </script>
 </body>

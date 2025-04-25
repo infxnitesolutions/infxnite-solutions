@@ -1,224 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Infxnite Solutions - Invoice Generator</title>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f4f4f4;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h2, h4 {
-      text-align: center;
-      margin: 10px 0;
-    }
-    .client-info {
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background-color: #fdfdfd;
-      margin-top: 30px;
-      margin-bottom: 30px;
-    }
-    .client-info div {
-      margin-bottom: 10px;
-    }
-    .client-info input {
-      padding: 6px;
-      font-size: 14px;
-      width: 250px;
-      margin-left: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 30px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-      font-weight: bold;
-    }
-    .form-section {
-      margin-top: 20px;
-      text-align: center;
-    }
-    .form-section label {
-      margin: 0 10px;
-    }
-    .form-section select, .form-section input {
-      padding: 6px;
-      font-size: 14px;
-    }
-    .total-section {
-      margin-top: 30px;
-      text-align: right;
-      font-size: 16px;
-    }
-    .total-section p {
-      margin: 4px 0;
-    }
-    .btn-container {
-      text-align: center;
-      margin-top: 30px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 4px;
-      cursor: pointer;
-      border: none;
-      font-size: 16px;
-      margin: 5px;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+    .container { max-width: 800px; margin: auto; background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2, h4 { text-align: center; margin: 10px 0; }
+    .client-info { padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #fdfdfd; margin-top: 30px; margin-bottom: 30px; }
+    .client-info div { margin-bottom: 10px; }
+    .client-info input { padding: 6px; font-size: 14px; width: 250px; margin-left: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background-color: #f0f0f0; font-weight: bold; }
+    .form-section { margin-top: 20px; text-align: center; }
+    .form-section label { margin: 0 10px; }
+    .form-section select, .form-section input { padding: 6px; font-size: 14px; }
+    .total-section { margin-top: 30px; text-align: right; font-size: 16px; }
+    .total-section p { margin: 4px 0; }
+    .btn-container { text-align: center; margin-top: 30px; }
+    .btn { display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; cursor: pointer; border: none; font-size: 16px; margin: 5px; }
   </style>
-  <script>
-    const password = prompt("Enter password to access this page:");
-    if (password !== "infxnite123") {
-      alert("Access denied.");
-      window.location.href = "/";
-    }
-  </script>
 </head>
 <body>
-  <div class="container" id="invoice">
-    <h2>Infxnite Solutions</h2>
-    <h4>Invoice Generator</h4>
+<div class="container" id="invoice">
+  <h2>Infxnite Solutions</h2>
+  <h4>Invoice Generator</h4>
 
-    <!-- Client Info Section -->
-    <div class="client-info">
-      <div>
-        <strong>Client Name:</strong>
-        <input type="text" id="clientName" placeholder="Enter client name">
-      </div>
-      <div>
-        <strong>Date:</strong>
-        <input type="date" id="invoiceDate">
-      </div>
-      <div>
-        <strong>Invoice #:</strong>
-        <input type="text" id="invoiceNumber" placeholder="e.g. INV-00123">
-      </div>
-    </div>
-
-    <table id="invoiceTable">
-      <thead>
-        <tr>
-          <th>Service</th>
-          <th>Quantity</th>
-          <th>Rate ($)</th>
-          <th>Total ($)</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-
-    <div class="form-section">
-      <label for="service">Service:</label>
-      <select id="service">
-        <option value="75">Virus Removal - $75</option>
-        <option value="50">System Optimization - $50</option>
-        <option value="40">Hardware Installation - $40</option>
-        <option value="120">Data Recovery - $120</option>
-        <option value="35">Software Installation - $35</option>
-      </select>
-      <label for="qty">Quantity:</label>
-      <input type="number" id="qty" min="1" value="1">
-      <button class="btn" onclick="addService()">Add Service</button>
-    </div>
-
-    <div class="total-section">
-      <p><strong>Subtotal: $<span id="subtotal">0.00</span></strong></p>
-      <p>Tax (9.5%): $<span id="tax">0.00</span></p>
-      <p><strong>Total: $<span id="total">0.00</span></strong></p>
-    </div>
-
-    <div class="btn-container">
-      <button class="btn" onclick="downloadPDF()">Download PDF</button>
-    </div>
+  <!-- Updated Client Info Section -->
+  <div class="client-info">
+    <div><strong>Client Name:</strong><input type="text" id="clientName" placeholder="Enter client name"></div>
+    <div><strong>Date:</strong><input type="date" id="invoiceDate"></div>
+    <div><strong>Invoice #:</strong><input type="text" id="invoiceNumber" placeholder="e.g. INV-00123"></div>
+    <div><strong>Product Model Number:</strong><input type="text" id="modelNumber" placeholder="Enter model number"></div>
+    <div><strong>Device Serial Number:</strong><input type="text" id="serialNumber" placeholder="Enter serial number"></div>
   </div>
 
-  <script>
-    // Set date to today
-    document.getElementById('invoiceDate').valueAsDate = new Date();
+  <table id="invoiceTable">
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Quantity</th>
+        <th>Rate ($)</th>
+        <th>Total ($)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    // Generate next invoice number
-    const lastInvoiceNum = localStorage.getItem('lastInvoiceNumber');
-    let nextInvoiceNum = lastInvoiceNum ? parseInt(lastInvoiceNum.replace('INV-', '')) + 1 : 1001;
-    const newInvoiceId = `INV-${nextInvoiceNum}`;
-    document.getElementById('invoiceNumber').value = newInvoiceId;
+  <div class="form-section">
+    <label for="service">Service:</label>
+    <select id="service">
+      <option value="75">Virus Removal - $75</option>
+      <option value="50">System Optimization - $50</option>
+      <option value="40">Hardware Installation - $40</option>
+      <option value="120">Data Recovery - $120</option>
+      <option value="35">Software Installation - $35</option>
+    </select>
+    <label for="qty">Quantity:</label>
+    <input type="number" id="qty" min="1" value="1">
+    <button class="btn" onclick="addService()">Add Service</button>
+  </div>
 
-    let subtotal = 0;
-    function addService() {
-      const serviceDropdown = document.getElementById('service');
-      const serviceText = serviceDropdown.options[serviceDropdown.selectedIndex].text;
-      const servicePrice = parseFloat(serviceDropdown.value);
-      const qty = parseInt(document.getElementById('qty').value);
-      const total = servicePrice * qty;
+  <div class="total-section">
+    <p><strong>Subtotal: $<span id="subtotal">0.00</span></strong></p>
+    <p>Tax (9.5%): $<span id="tax">0.00</span></p>
+    <p><strong>Total: $<span id="total">0.00</span></strong></p>
+  </div>
 
-      const table = document.getElementById('invoiceTable').getElementsByTagName('tbody')[0];
-      const newRow = table.insertRow();
+  <div class="btn-container">
+    <button class="btn" onclick="downloadPDF()">Download PDF</button>
+  </div>
+</div>
 
-      newRow.innerHTML = `
-        <td>${serviceText.split(' -')[0]}</td>
-        <td>${qty}</td>
-        <td>${servicePrice.toFixed(2)}</td>
-        <td>${total.toFixed(2)}</td>
-      `;
+<script>
+  document.getElementById('invoiceDate').valueAsDate = new Date();
 
-      subtotal += total;
-      const tax = subtotal * 0.095;
-      const grandTotal = subtotal + tax;
+  const lastInvoiceNum = localStorage.getItem('lastInvoiceNumber');
+  let nextInvoiceNum = lastInvoiceNum ? parseInt(lastInvoiceNum.replace('INV-', '')) + 1 : 1001;
+  const newInvoiceId = `INV-${nextInvoiceNum}`;
+  document.getElementById('invoiceNumber').value = newInvoiceId;
 
-      document.getElementById('subtotal').innerText = subtotal.toFixed(2);
-      document.getElementById('tax').innerText = tax.toFixed(2);
-      document.getElementById('total').innerText = grandTotal.toFixed(2);
-    }
+  let subtotal = 0;
+  function addService() {
+    const serviceDropdown = document.getElementById('service');
+    const serviceText = serviceDropdown.options[serviceDropdown.selectedIndex].text;
+    const servicePrice = parseFloat(serviceDropdown.value);
+    const qty = parseInt(document.getElementById('qty').value);
+    const total = servicePrice * qty;
 
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const uiElements = document.querySelectorAll('.form-section, .btn-container');
-      uiElements.forEach(el => el.style.display = 'none');
-      await new Promise(resolve => setTimeout(resolve, 300));
+    const table = document.getElementById('invoiceTable').getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
 
-      const invoiceElement = document.getElementById("invoice");
-      const canvas = await html2canvas(invoiceElement, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
+    newRow.innerHTML = `
+      <td>${serviceText.split(' -')[0]}</td>
+      <td>${qty}</td>
+      <td>${servicePrice.toFixed(2)}</td>
+      <td>${total.toFixed(2)}</td>
+    `;
 
-      uiElements.forEach(el => el.style.display = '');
+    subtotal += total;
+    const tax = subtotal * 0.095;
+    const grandTotal = subtotal + tax;
 
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pdfWidth - 20;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+    document.getElementById('tax').innerText = tax.toFixed(2);
+    document.getElementById('total').innerText = grandTotal.toFixed(2);
+  }
 
-      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-      pdf.save("invoice.pdf");
+  async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const uiElements = document.querySelectorAll('.form-section, .btn-container');
+    uiElements.forEach(el => el.style.display = 'none');
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Save next invoice number
-      localStorage.setItem('lastInvoiceNumber', newInvoiceId);
-    }
-  </script>
+    const invoiceElement = document.getElementById("invoice");
+    const canvas = await html2canvas(invoiceElement, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+
+    uiElements.forEach(el => el.style.display = '');
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const imgWidth = pdfWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+    pdf.save("invoice.pdf");
+
+    localStorage.setItem('lastInvoiceNumber', newInvoiceId);
+  }
+</script>
 </body>
 </html>

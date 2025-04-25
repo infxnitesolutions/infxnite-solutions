@@ -160,27 +160,29 @@
     }
 
     async function downloadPDF() {
-    const uiElements = document.querySelectorAll('.form-section, .btn-container');
-    uiElements.forEach(el => el.style.display = 'none');
+        const { jsPDF } = window.jspdf;
+        console.log("jsPDF available?", typeof jsPDF); // should log 'function'
 
-    // Give the UI a moment to reflow
-    await new Promise(resolve => setTimeout(resolve, 300));
+        const uiElements = document.querySelectorAll('.form-section, .btn-container');
+        uiElements.forEach(el => el.style.display = 'none');
 
-    const invoiceElement = document.getElementById("invoice");
-    const canvas = await html2canvas(invoiceElement, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
+        await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Restore UI before saving
-    uiElements.forEach(el => el.style.display = '');
+        const invoiceElement = document.getElementById("invoice");
+        const canvas = await html2canvas(invoiceElement, { scale: 2 });
+        const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const imgWidth = pdfWidth - 20;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // Restore UI before saving
+        iElements.forEach(el => el.style.display = '');
 
-    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-    pdf.save("invoice.pdf");
-  }
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const imgWidth = pdfWidth - 20;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+        pdf.save("invoice.pdf");
+    }
   </script>
 </body>
 </html>

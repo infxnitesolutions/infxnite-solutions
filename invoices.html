@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Infxnite Solutions - Invoice Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -124,17 +125,15 @@
     }
 
     async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
       const invoiceElement = document.getElementById("invoice");
-      await doc.html(invoiceElement, {
-        callback: function (doc) {
-          doc.save("invoice.pdf");
-        },
-        x: 10,
-        y: 10,
-        html2canvas: { scale: 0.5 }
-      });
+      const canvas = await html2canvas(invoiceElement);
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jspdf.jsPDF("p", "mm", "a4");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("invoice.pdf");
     }
   </script>
 </body>

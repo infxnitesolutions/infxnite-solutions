@@ -44,6 +44,17 @@
       background-color: #f0f0f0;
       font-weight: bold;
     }
+    .form-section {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .form-section label {
+      margin: 0 10px;
+    }
+    .form-section select, .form-section input {
+      padding: 6px;
+      font-size: 14px;
+    }
     .total-section {
       margin-top: 30px;
       text-align: right;
@@ -66,6 +77,7 @@
       cursor: pointer;
       border: none;
       font-size: 16px;
+      margin: 5px;
     }
   </style>
   <script>
@@ -81,6 +93,20 @@
     <h2>Infxnite Solutions</h2>
     <h4>Invoice Generator</h4>
 
+    <div class="form-section">
+      <label for="service">Service:</label>
+      <select id="service">
+        <option value="75">Virus Removal - $75</option>
+        <option value="50">System Optimization - $50</option>
+        <option value="40">Hardware Installation - $40</option>
+        <option value="120">Data Recovery - $120</option>
+        <option value="35">Software Installation - $35</option>
+      </select>
+      <label for="qty">Quantity:</label>
+      <input type="number" id="qty" min="1" value="1">
+      <button class="btn" onclick="addService()">Add Service</button>
+    </div>
+
     <table id="invoiceTable">
       <thead>
         <tr>
@@ -91,25 +117,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>Hardware Installation</td>
-          <td>1</td>
-          <td>40.00</td>
-          <td>40.00</td>
-        </tr>
-        <tr>
-          <td>Virus Removal</td>
-          <td>1</td>
-          <td>75.00</td>
-          <td>75.00</td>
-        </tr>
       </tbody>
     </table>
 
     <div class="total-section">
-      <p><strong>Subtotal: $115.00</strong></p>
-      <p>Tax (9.5%): $10.93</p>
-      <p><strong>Total: $125.92</strong></p>
+      <p><strong>Subtotal: $<span id="subtotal">0.00</span></strong></p>
+      <p>Tax (9.5%): $<span id="tax">0.00</span></p>
+      <p><strong>Total: $<span id="total">0.00</span></strong></p>
     </div>
 
     <div class="btn-container">
@@ -118,6 +132,33 @@
   </div>
 
   <script>
+    let subtotal = 0;
+    function addService() {
+      const serviceDropdown = document.getElementById('service');
+      const serviceText = serviceDropdown.options[serviceDropdown.selectedIndex].text;
+      const servicePrice = parseFloat(serviceDropdown.value);
+      const qty = parseInt(document.getElementById('qty').value);
+      const total = servicePrice * qty;
+
+      const table = document.getElementById('invoiceTable').getElementsByTagName('tbody')[0];
+      const newRow = table.insertRow();
+
+      newRow.innerHTML = `
+        <td>${serviceText.split(' -')[0]}</td>
+        <td>${qty}</td>
+        <td>${servicePrice.toFixed(2)}</td>
+        <td>${total.toFixed(2)}</td>
+      `;
+
+      subtotal += total;
+      const tax = subtotal * 0.095;
+      const grandTotal = subtotal + tax;
+
+      document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+      document.getElementById('tax').innerText = tax.toFixed(2);
+      document.getElementById('total').innerText = grandTotal.toFixed(2);
+    }
+
     async function downloadPDF() {
       const invoiceElement = document.getElementById("invoice");
       const canvas = await html2canvas(invoiceElement, { scale: 2 });
@@ -127,7 +168,7 @@
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      const imgWidth = pdfWidth - 20; // 10mm margin on each side
+      const imgWidth = pdfWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       const marginTop = 10;

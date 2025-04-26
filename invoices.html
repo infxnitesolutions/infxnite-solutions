@@ -136,8 +136,62 @@
     localStorage.setItem('lastInvoiceNumber', newInvoiceId);
   }
 
-  function saveInvoiceData() {$1document.body.removeChild(link);
-    alert('✅ Invoice saved successfully!');
+  async function saveInvoiceData() {
+    const clientName = document.getElementById('clientName').value;
+    const invoiceDate = document.getElementById('invoiceDate').value;
+    const invoiceNumber = document.getElementById('invoiceNumber').value;
+    const modelNumber = document.getElementById('modelNumber').value;
+    const serialNumber = document.getElementById('serialNumber').value;
+
+    const items = [];
+    document.querySelectorAll('#invoiceTable tbody tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      items.push({
+        service: cells[0].innerText,
+        quantity: cells[1].innerText,
+        rate: cells[2].innerText,
+        total: cells[3].innerText
+      });
+    });
+
+    const data = {
+      clientName,
+      invoiceDate,
+      invoiceNumber,
+      modelNumber,
+      serialNumber,
+      items,
+      subtotal: document.getElementById('subtotal').innerText,
+      tax: document.getElementById('tax').innerText,
+      total: document.getElementById('total').innerText
+    };
+
+    try {
+      if ('showSaveFilePicker' in window) {
+        const options = {
+          suggestedName: `invoice-${invoiceNumber}.json`,
+          types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }]
+        };
+        const handle = await window.showSaveFilePicker(options);
+        const writable = await handle.createWritable();
+        await writable.write(JSON.stringify(data, null, 2));
+        await writable.close();
+        alert('✅ Invoice saved successfully!');
+      } else {
+        // fallback for browsers that don't support showSaveFilePicker
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `invoice-${invoiceNumber}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        alert('✅ Invoice saved successfully! (Fallback method)');
+      }
+    } catch (error) {
+      console.error('Save canceled or failed:', error);
+      alert('❌ Invoice save canceled or failed.');
+    }
   }
 </script>
 </body>

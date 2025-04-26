@@ -23,6 +23,7 @@
     .total-section p { margin: 4px 0; }
     .btn-container { text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 10px; }
     .btn { display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; cursor: pointer; border: none; font-size: 16px; margin: 5px; }
+    .remove-btn { color: red; cursor: pointer; font-weight: bold; }
   </style>
   <script>
     const password = prompt("Enter password to access this page:");
@@ -46,18 +47,6 @@
     <div><strong>Device Serial Number:</strong><input type="text" id="serialNumber" placeholder="Enter serial number"></div>
   </div>
 
-  <table id="invoiceTable">
-    <thead>
-      <tr>
-        <th>Service</th>
-        <th>Quantity</th>
-        <th>Rate ($)</th>
-        <th>Total ($)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
   <div class="form-section">
     <label for="service">Service:</label>
     <select id="service">
@@ -72,6 +61,19 @@
     <input type="number" id="qty" min="1" value="1">
     <button class="btn" onclick="addService()">Add Service</button>
   </div>
+
+  <table id="invoiceTable">
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Quantity</th>
+        <th>Rate ($)</th>
+        <th>Total ($)</th>
+        <th>Remove</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <div class="total-section">
     <p><strong>Subtotal: $<span id="subtotal">0.00</span></strong></p>
@@ -94,6 +96,7 @@
   document.getElementById('invoiceNumber').value = newInvoiceId;
 
   let subtotal = 0;
+
   function addService() {
     const serviceDropdown = document.getElementById('service');
     const serviceText = serviceDropdown.options[serviceDropdown.selectedIndex].text;
@@ -109,100 +112,27 @@
       <td>${qty}</td>
       <td>${servicePrice.toFixed(2)}</td>
       <td>${total.toFixed(2)}</td>
+      <td><span class="remove-btn" onclick="removeService(this)">X</span></td>
     `;
 
     subtotal += total;
+    updateTotals();
+  }
+
+  function removeService(element) {
+    const row = element.closest('tr');
+    const amount = parseFloat(row.cells[3].innerText);
+    subtotal -= amount;
+    row.remove();
+    updateTotals();
+  }
+
+  function updateTotals() {
     const tax = subtotal * 0.095;
     const grandTotal = subtotal + tax;
-
     document.getElementById('subtotal').innerText = subtotal.toFixed(2);
     document.getElementById('tax').innerText = tax.toFixed(2);
     document.getElementById('total').innerText = grandTotal.toFixed(2);
-  }
-
-  async function downloadPDF() {
-    const { jsPDF } = window.jspdf;
-    const clientName = document.getElementById('clientName').value.replace(/\s+/g, '');
-    const invoiceDate = document.getElementById('invoiceDate').value;
-    const invoiceNumber = document.getElementById('invoiceNumber').value;
-    const filename = `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.pdf`;
-
-    const uiElements = document.querySelectorAll('.form-section, .btn-container');
-    uiElements.forEach(el => el.style.display = 'none');
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    const invoiceElement = document.getElementById("invoice");
-    const canvas = await html2canvas(invoiceElement, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-
-    uiElements.forEach(el => el.style.display = '');
-
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const imgWidth = pdfWidth - 20;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-    pdf.save(filename);
-
-    localStorage.setItem('lastInvoiceNumber', newInvoiceId);
-  }
-
-  async function saveInvoiceData() {
-    const clientName = document.getElementById('clientName').value.replace(/\s+/g, '');
-    const invoiceDate = document.getElementById('invoiceDate').value;
-    const invoiceNumber = document.getElementById('invoiceNumber').value;
-    const modelNumber = document.getElementById('modelNumber').value;
-    const serialNumber = document.getElementById('serialNumber').value;
-
-    const items = [];
-    document.querySelectorAll('#invoiceTable tbody tr').forEach(row => {
-      const cells = row.querySelectorAll('td');
-      items.push({
-        service: cells[0].innerText,
-        quantity: cells[1].innerText,
-        rate: cells[2].innerText,
-        total: cells[3].innerText
-      });
-    });
-
-    const data = {
-      clientName,
-      invoiceDate,
-      invoiceNumber,
-      modelNumber,
-      serialNumber,
-      items,
-      subtotal: document.getElementById('subtotal').innerText,
-      tax: document.getElementById('tax').innerText,
-      total: document.getElementById('total').innerText
-    };
-
-    try {
-      if ('showSaveFilePicker' in window) {
-        const options = {
-          suggestedName: `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.json`,
-          types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }]
-        };
-        const handle = await window.showSaveFilePicker(options);
-        const writable = await handle.createWritable();
-        await writable.write(JSON.stringify(data, null, 2));
-        await writable.close();
-        alert('✅ Invoice saved successfully!');
-      } else {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        alert('✅ Invoice saved successfully! (Fallback method)');
-      }
-    } catch (error) {
-      console.error('Save canceled or failed:', error);
-      alert('❌ Invoice save canceled or failed.');
-    }
   }
 </script>
 </body>

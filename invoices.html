@@ -24,6 +24,13 @@
     .btn-container { text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 10px; }
     .btn { display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; cursor: pointer; border: none; font-size: 16px; margin: 5px; }
   </style>
+  <script>
+    const password = prompt("Enter password to access this page:");
+    if (password !== "infxnite123") {
+      alert("Access denied.");
+      window.location.href = "/";
+    }
+  </script>
 </head>
 <body>
 <div class="container" id="invoice">
@@ -115,6 +122,11 @@
 
   async function downloadPDF() {
     const { jsPDF } = window.jspdf;
+    const clientName = document.getElementById('clientName').value.replace(/\s+/g, '');
+    const invoiceDate = document.getElementById('invoiceDate').value;
+    const invoiceNumber = document.getElementById('invoiceNumber').value;
+    const filename = `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.pdf`;
+
     const uiElements = document.querySelectorAll('.form-section, .btn-container');
     uiElements.forEach(el => el.style.display = 'none');
     await new Promise(resolve => setTimeout(resolve, 300));
@@ -131,13 +143,13 @@
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-    pdf.save("invoice.pdf");
+    pdf.save(filename);
 
     localStorage.setItem('lastInvoiceNumber', newInvoiceId);
   }
 
   async function saveInvoiceData() {
-    const clientName = document.getElementById('clientName').value;
+    const clientName = document.getElementById('clientName').value.replace(/\s+/g, '');
     const invoiceDate = document.getElementById('invoiceDate').value;
     const invoiceNumber = document.getElementById('invoiceNumber').value;
     const modelNumber = document.getElementById('modelNumber').value;
@@ -169,7 +181,7 @@
     try {
       if ('showSaveFilePicker' in window) {
         const options = {
-          suggestedName: `invoice-${invoiceNumber}.json`,
+          suggestedName: `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.json`,
           types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }]
         };
         const handle = await window.showSaveFilePicker(options);
@@ -178,11 +190,10 @@
         await writable.close();
         alert('✅ Invoice saved successfully!');
       } else {
-        // fallback for browsers that don't support showSaveFilePicker
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `invoice-${invoiceNumber}.json`;
+        link.download = `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

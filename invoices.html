@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Infxnite Solutions - Invoice Generator</title>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -10,20 +10,21 @@
     body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
     .container { max-width: 800px; margin: auto; background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     h2, h4 { text-align: center; margin: 10px 0; }
-    .client-info { padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #fdfdfd; margin-top: 30px; margin-bottom: 30px; }
+    .client-info, .form-section, .total-section, .btn-container { margin-top: 30px; }
+    .client-info { padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #fdfdfd; }
     .client-info div { margin-bottom: 10px; }
     .client-info input { padding: 6px; font-size: 14px; width: 250px; margin-left: 10px; }
     table { width: 100%; border-collapse: collapse; margin-top: 30px; }
     th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-    th { background-color: #f0f0f0; font-weight: bold; }
-    .form-section { margin-top: 20px; text-align: center; }
-    .form-section label { margin: 0 10px; }
-    .form-section select, .form-section input { padding: 6px; font-size: 14px; }
-    .total-section { margin-top: 30px; text-align: right; font-size: 16px; }
-    .total-section p { margin: 4px 0; }
-    .btn-container { text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 10px; }
-    .btn { display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; cursor: pointer; border: none; font-size: 16px; margin: 5px; }
-    .remove-btn { color: red; cursor: pointer; font-weight: bold; }
+    th { background-color: #f0f0f0; }
+    .form-section label, .form-section select, .form-section input { margin: 0 5px; font-size: 14px; }
+    .btn-container { display: flex; justify-content: center; gap: 10px; }
+    .btn { padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; cursor: pointer; border: none; font-size: 16px; }
+    .options-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: #007bff; }
+    .options-menu { display: none; position: absolute; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .options-menu button { display: block; width: 100%; padding: 8px; background: none; border: none; text-align: left; cursor: pointer; }
+    .options-menu button:hover { background-color: #f0f0f0; }
+    .row-wrapper { position: relative; }
   </style>
   <script>
     const password = prompt("Enter password to access this page:");
@@ -34,11 +35,12 @@
   </script>
 </head>
 <body>
+
 <div class="container" id="invoice">
   <h2>Infxnite Solutions</h2>
   <h4>Invoice Generator</h4>
 
-  <!-- Updated Client Info Section -->
+  <!-- Client Info -->
   <div class="client-info">
     <div><strong>Client Name:</strong><input type="text" id="clientName" placeholder="Enter client name"></div>
     <div><strong>Date:</strong><input type="date" id="invoiceDate"></div>
@@ -47,6 +49,7 @@
     <div><strong>Device Serial Number:</strong><input type="text" id="serialNumber" placeholder="Enter serial number"></div>
   </div>
 
+  <!-- Service Selection -->
   <div class="form-section">
     <label for="service">Service:</label>
     <select id="service">
@@ -62,6 +65,7 @@
     <button class="btn" onclick="addService()">Add Service</button>
   </div>
 
+  <!-- Invoice Table -->
   <table id="invoiceTable">
     <thead>
       <tr>
@@ -69,27 +73,30 @@
         <th>Quantity</th>
         <th>Rate ($)</th>
         <th>Total ($)</th>
-        <th>Remove</th>
+        <th></th> <!-- Empty for options -->
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <div class="total-section">
+  <!-- Totals -->
+  <div class="total-section" style="text-align:right;">
     <p><strong>Subtotal: $<span id="subtotal">0.00</span></strong></p>
     <p>Tax (9.5%): $<span id="tax">0.00</span></p>
     <p><strong>Total: $<span id="total">0.00</span></strong></p>
   </div>
 
+  <!-- Buttons -->
   <div class="btn-container">
     <button class="btn" onclick="saveInvoiceData()">Save Invoice Data</button>
     <button class="btn" onclick="downloadPDF()">Download PDF</button>
   </div>
+
 </div>
 
+<!-- JavaScript -->
 <script>
   document.getElementById('invoiceDate').valueAsDate = new Date();
-
   const lastInvoiceNum = localStorage.getItem('lastInvoiceNumber');
   let nextInvoiceNum = lastInvoiceNum ? parseInt(lastInvoiceNum.replace('INV-', '')) + 1 : 1001;
   const newInvoiceId = `INV-${nextInvoiceNum}`;
@@ -106,23 +113,52 @@
 
     const table = document.getElementById('invoiceTable').getElementsByTagName('tbody')[0];
     const newRow = table.insertRow();
-
+    newRow.classList.add('row-wrapper');
     newRow.innerHTML = `
       <td>${serviceText.split(' -')[0]}</td>
       <td>${qty}</td>
       <td>${servicePrice.toFixed(2)}</td>
       <td>${total.toFixed(2)}</td>
-      <td><span class="remove-btn" onclick="removeService(this)">X</span></td>
+      <td>
+        <button class="options-btn" onclick="toggleOptions(this)">˅</button>
+        <div class="options-menu">
+          <button onclick="editService(this)">Edit</button>
+          <button onclick="deleteService(this)">Delete</button>
+        </div>
+      </td>
     `;
 
     subtotal += total;
     updateTotals();
   }
 
-  function removeService(element) {
-    const row = element.closest('tr');
-    const amount = parseFloat(row.cells[3].innerText);
-    subtotal -= amount;
+  function toggleOptions(button) {
+    const menu = button.nextElementSibling;
+    document.querySelectorAll('.options-menu').forEach(m => { if (m !== menu) m.style.display = 'none'; });
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function editService(button) {
+    const row = button.closest('tr');
+    const cells = row.querySelectorAll('td');
+    const service = prompt('Edit Service Name:', cells[0].innerText);
+    const qty = prompt('Edit Quantity:', cells[1].innerText);
+    const rate = prompt('Edit Rate ($):', cells[2].innerText);
+
+    if (service !== null && qty !== null && rate !== null) {
+      cells[0].innerText = service;
+      cells[1].innerText = qty;
+      cells[2].innerText = parseFloat(rate).toFixed(2);
+      cells[3].innerText = (parseFloat(rate) * parseInt(qty)).toFixed(2);
+      subtotal = Array.from(document.querySelectorAll('#invoiceTable tbody tr')).reduce((sum, r) => sum + parseFloat(r.cells[3].innerText), 0);
+      updateTotals();
+    }
+    button.parentElement.style.display = 'none';
+  }
+
+  function deleteService(button) {
+    const row = button.closest('tr');
+    subtotal -= parseFloat(row.cells[3].innerText);
     row.remove();
     updateTotals();
   }
@@ -134,6 +170,73 @@
     document.getElementById('tax').innerText = tax.toFixed(2);
     document.getElementById('total').innerText = grandTotal.toFixed(2);
   }
+
+  async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const clientName = document.getElementById('clientName').value.replace(/\s+/g, '');
+    const invoiceDate = document.getElementById('invoiceDate').value;
+    const invoiceNumber = document.getElementById('invoiceNumber').value;
+    const filename = `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.pdf`;
+
+    const uiElements = document.querySelectorAll('.form-section, .btn-container');
+    uiElements.forEach(el => el.style.display = 'none');
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    const invoiceElement = document.getElementById("invoice");
+    const canvas = await html2canvas(invoiceElement, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+
+    uiElements.forEach(el => el.style.display = '');
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const imgWidth = pdfWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+    pdf.save(filename);
+    localStorage.setItem('lastInvoiceNumber', newInvoiceId);
+  }
+
+  async function saveInvoiceData() {
+    const clientName = document.getElementById('clientName').value.replace(/\s+/g, '');
+    const invoiceDate = document.getElementById('invoiceDate').value;
+    const invoiceNumber = document.getElementById('invoiceNumber').value;
+    const modelNumber = document.getElementById('modelNumber').value;
+    const serialNumber = document.getElementById('serialNumber').value;
+
+    const items = [];
+    document.querySelectorAll('#invoiceTable tbody tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      items.push({ service: cells[0].innerText, quantity: cells[1].innerText, rate: cells[2].innerText, total: cells[3].innerText });
+    });
+
+    const data = { clientName, invoiceDate, invoiceNumber, modelNumber, serialNumber, items, subtotal: document.getElementById('subtotal').innerText, tax: document.getElementById('tax').innerText, total: document.getElementById('total').innerText };
+
+    try {
+      if ('showSaveFilePicker' in window) {
+        const options = { suggestedName: `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.json`, types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }] };
+        const handle = await window.showSaveFilePicker(options);
+        const writable = await handle.createWritable();
+        await writable.write(JSON.stringify(data, null, 2));
+        await writable.close();
+        alert('✅ Invoice saved successfully!');
+      } else {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `invoice-${invoiceNumber}-${clientName}-${invoiceDate}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        alert('✅ Invoice saved successfully! (Fallback method)');
+      }
+    } catch (error) {
+      console.error('Save canceled or failed:', error);
+      alert('❌ Invoice save canceled or failed.');
+    }
+  }
 </script>
+
 </body>
 </html>
